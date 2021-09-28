@@ -23,7 +23,7 @@ object Repository {
     suspend fun getRandomPhotos(query: String?): List<PhotoResponse>? =
         unsplashApiService.getRandomPhotos(query).body()
 
-    // 로깅을 찍기 위한 함수
+    // 로깅을 찍기 위한 build
     private fun buildOkHttpClient(): OkHttpClient =
         OkHttpClient.Builder()
             .addInterceptor(

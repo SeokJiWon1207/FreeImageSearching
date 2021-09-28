@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.freeimagesearching.data.models.PhotoResponse
 import com.example.freeimagesearching.databinding.ItemPhotoBinding
 
@@ -14,11 +15,8 @@ class PhotoAdapter : RecyclerView.Adapter<PhotoAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         ViewHolder(
-            ItemPhotoBinding.inflate(
-                LayoutInflater.from(parent.context), parent, false
-            )
+            ItemPhotoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         )
-
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(photos[position])
@@ -29,12 +27,31 @@ class PhotoAdapter : RecyclerView.Adapter<PhotoAdapter.ViewHolder>() {
     inner class ViewHolder(private val binding: ItemPhotoBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(photos: PhotoResponse) {
+            val dimensionRatio = photos.height / photos.width.toFloat()
+            val targetWidth = binding.root.resources.displayMetrics.widthPixels -
+                    (binding.root.paddingStart + binding.root.paddingEnd)
+            val targetHeight = (targetWidth * dimensionRatio).toInt()
+
+            binding.contentsContainer.layoutParams =
+                binding.contentsContainer.layoutParams.apply {
+                    height = targetHeight
+                }
+
             Glide.with(binding.root)
                 .load(photos.urls?.regular)
+                .thumbnail(
+                    Glide.with(binding.root)
+                        .load(photos.urls?.thumb)
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                )
+                .override(targetWidth, targetHeight)
                 .into(binding.photoImageView)
 
             Glide.with(binding.root)
                 .load(photos.user?.profileImageUrls?.small)
+                .placeholder(R.drawable.shape_profile_placeholder)
+                .circleCrop()
+                .transition(DrawableTransitionOptions.withCrossFade())
                 .into(binding.profileImageView)
 
             if (photos.user?.name.isNullOrBlank()) {
