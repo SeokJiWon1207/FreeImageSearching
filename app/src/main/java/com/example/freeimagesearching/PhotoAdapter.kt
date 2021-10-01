@@ -13,6 +13,8 @@ class PhotoAdapter : RecyclerView.Adapter<PhotoAdapter.ViewHolder>() {
 
     var photos: List<PhotoResponse> = emptyList()
 
+    var onClickPhoto: (PhotoResponse) -> Unit = {}
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         ViewHolder(
             ItemPhotoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -26,6 +28,13 @@ class PhotoAdapter : RecyclerView.Adapter<PhotoAdapter.ViewHolder>() {
 
     inner class ViewHolder(private val binding: ItemPhotoBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
+        init {
+            binding.root.setOnClickListener {
+                onClickPhoto(photos[adapterPosition])
+            }
+        }
+
         fun bind(photos: PhotoResponse) {
             val dimensionRatio = photos.height / photos.width.toFloat()
             val targetWidth = binding.root.resources.displayMetrics.widthPixels -
